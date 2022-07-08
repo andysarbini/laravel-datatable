@@ -53,7 +53,7 @@ class UsersDataTable extends DataTable
             })
             ->addColumn('posts', function(User $user) {
                 return $user->posts->map(function($post) {
-                    return \Str::limit($post->title, 4, '...');
+                    return \Str::limit($post->title, 4, '...'); // 4 karakter
                 })->implode('<br>');
             })
             ->setRowClass(function ($user) {
@@ -71,10 +71,10 @@ class UsersDataTable extends DataTable
     public function query(User $model)
     {
         // return $model->newQuery();
-        // return $model->with('posts')->select('users.*')->newQuery(); // eloquent relationship
-        return $model
-        ->join('posts', 'users.id', '=', 'posts.author_id')
-        ->select(['users.id', 'users.name', 'users.email', 'posts.title', 'users.created_at', 'users.updated_at']); // query builder
+        return $model->with('posts')->select('users.*')->newQuery(); // eloquent relationship
+        // return $model
+        // ->join('posts', 'users.id', '=', 'posts.author_id')
+        // ->select(['users.id', 'users.name', 'users.email', 'posts.title', 'users.created_at', 'users.updated_at']); // query builder
     }
 
     /**

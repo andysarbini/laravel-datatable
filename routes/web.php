@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PostsController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -22,6 +23,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/users/baru', [UsersController::class, 'baru']); // posisi di atas user controller
 
 Route::get('/users', [UsersController::class, 'index']);
 Route::get('/users/{id}/posts', [UsersController::class, 'posts']);
