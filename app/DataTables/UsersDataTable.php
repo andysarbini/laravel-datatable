@@ -51,10 +51,15 @@ class UsersDataTable extends DataTable
             ->addColumn('action', function(User $user) {
                 return view('users.actions', compact('user'));
             })
+            ->addColumn('posts', function(User $user) {
+                return $user->posts->map(function($post) {
+                    return \Str::limit($post->title, 4, '...');
+                })->implode('<br>');
+            })
             ->setRowClass(function ($user) {
                 if($user->name == "Spencer Mayer") return 'alert-success';
             })
-            ->rawColumns(['more', 'action']);
+            ->rawColumns(['more', 'action', 'posts']);
     }
 
     /**
@@ -65,7 +70,11 @@ class UsersDataTable extends DataTable
      */
     public function query(User $model)
     {
-        return $model->newQuery();
+        // return $model->newQuery();
+        // return $model->with('posts')->select('users.*')->newQuery(); // eloquent relationship
+        return $model
+        ->join('posts', 'users.id', '=', 'posts.author_id')
+        ->select(['users.id', 'users.name', 'users.email', 'posts.title', 'users.created_at', 'users.updated_at']); // query builder
     }
 
     /**
@@ -111,19 +120,26 @@ class UsersDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            Column::computed('more')->addClass('details-control'),
+            // Column::computed('more')->addClass('details-control'),
+            // Column::computed('action')
+            //       ->exportable(false)
+            //       ->printable(false)
+            //       ->width(60)
+            //       ->addClass('text-center'),
+            // Column::make('id'),
+            // // Column::make('email')sortable(false)->searchable(false), tidak bisa dicari & sortir
+            // Column::make('email')->searchable(false),
+            // Column::computed('email')->title('Surel'),  /** <-- tidak bisa dicari & sortir */
+            // // Column::make('name')->sortable(false), tidak bisa disortir
+            // Column::make('name')->title('Nama Lengkap'),
+            // Column::make('sapa_nama'),
             Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(60)
-                  ->addClass('text-center'),
-            Column::make('id'),
-            // Column::make('email')sortable(false)->searchable(false), tidak bisa dicari & sortir
-            Column::make('email')->searchable(false),
-            Column::computed('email')->title('Surel'),  /** <-- tidak bisa dicari & sortir */
-            // Column::make('name')->sortable(false), tidak bisa disortir
-            Column::make('name')->title('Nama Lengkap'),
-            Column::make('sapa_nama'),
+                ->width(160)
+                ->addClass('text-center'),
+            Column::make('id', 'users.id'),
+            Column::make('email', 'users.email')->title('Email')->printable(false),
+            Column::make('name', 'users.name')->title('Nama Lengkap')->exportable(false),
+            Column::make('posts', 'posts.title'),
             Column::make('created_at'),
             Column::make('updated_at')
         ];
