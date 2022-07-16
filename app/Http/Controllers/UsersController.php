@@ -50,6 +50,10 @@ class UsersController extends Controller
         ->render('users.index');
     }
 
+    public function dataTable($query, Request $request) {
+        
+    }
+
     // public function index()
     // {
     //     $list_user = User::all();

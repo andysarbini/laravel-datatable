@@ -8,6 +8,7 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Illuminate\Http\Request;
 
 // `use Yajra\DataTables\DataTables`;
 
@@ -22,7 +23,7 @@ class UsersDataTable extends DataTable
 
     protected $actions = ['print', 'export', 'csv', 'excel', 'hapusUser'];
 
-    public function dataTable($query)
+    public function dataTable($query, Request $request)
     {
         return dataTables()
             ->eloquent($query)
@@ -59,7 +60,31 @@ class UsersDataTable extends DataTable
             ->setRowClass(function ($user) {
                 if($user->name == "Spencer Mayer") return 'alert-success';
             })
-            ->rawColumns(['more', 'action', 'posts']);
+            ->editColumn('created_at', function(User $user){
+                return $user->created_at->format('d/m/Y');
+            })
+            ->editColumn('updated_at', function(User $user){
+                return $user->updated_at->format('d/m/Y');
+            })
+            ->rawColumns(['more', 'action', 'posts'])
+            ->filter(function($query) use($request) {
+                // if($request->has('email')) {
+                //     $email = $request->get("email");
+                //     return $query->where('email', 'LIKE', "%$email%");
+                // }
+                if($request->has('operator') && $request->has('jumlah_post')) {
+                    $operator = $request->get('operator');
+                    $jumlah = $request->get('jumlah_post');
+                    return $query->withCount('posts')->having('posts_count', $operator, $jumlah);
+                }
+
+                if($request->has('email')) {
+                    $email = $request->get('email');
+                    $query->where('email', 'LIKE', "%$email%");
+                }
+                return $query;
+
+            }, true);
     }
 
     /**
@@ -88,7 +113,7 @@ class UsersDataTable extends DataTable
                     ->setTableId('users-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->dom('Bfrtip') 
+                    ->dom('Brtip') 
                     // kepanjangan Bfrtip utk setting tampilan datatable:
                         // Button, extension
                         // Filter, pencarian global
